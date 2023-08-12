@@ -291,7 +291,61 @@ public class cases extends InitAndEnd{
         Assertions.assertEquals("你只能向好友发送消息！",alertText);
     }
 
+    @Test
+    void testDelChat(){
+        LoginSuccess("admin","123","http://43.139.243.98:8080/login.html");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#session-list")));
+        //获取所有会话列表的记录
+        List<WebElement> list=webDriver.findElements(By.cssSelector("#session-list > li"));
+        int i=0,j=0;
+        //找到目标联系人abc
+        for (;i<list.size();i++){
+            if (list.get(i).findElement(By.cssSelector("h3")).getText().equals("abc")){
+                break;
+            }
+        }
+        //点击联系人
+        list.get(i).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#right > div.title > div")));
+        WebElement divMoreElement =webDriver.findElement(By.cssSelector("#right > div.title > div"));
+        //点击更多
+        divMoreElement.click();
+        //等待出现的下拉框
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#Dropdown")));
+        String displayValue = divMoreElement.getCssValue("display");
+        //判断下拉框是否显示，不显示说明有问题
+        Assertions.assertEquals("block", displayValue, "moreDiv is not displayed as block");
+        //点击删除会话选项
+        webDriver.findElement(By.cssSelector("#Dropdown > div.deleteChat")).click();
+        //再次获取聊天会话列表
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector("#session-list .selected")));
+        list=webDriver.findElements(By.cssSelector("#session-list > li"));
+        //判断是否存在abc的聊天，不存在说明删除成功
+        boolean flag=false;
+        for (;j<list.size();j++){
+            if (list.get(j)!=null&&list.get(j).findElement(By.cssSelector("h3")).getText().equals("abc")){
+                flag=true;
+                break;
+            }
+        }
+        Assertions.assertFalse(flag);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#getFriend")));
+        webDriver.findElement(By.cssSelector("#getFriend")).click();
+        //获取所有的好友
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#friend-list")));
+        List<WebElement> firendList=webDriver.findElements(By.cssSelector("#friend-list > li"));
+        boolean flag_deleteChat=false;
+        //如果找到就为true
+        for (int k = 0; k < firendList.size(); k++) {
+            if (firendList.get(k)!=null&&firendList.get(k).getText().equals("abc")){
+                flag_deleteChat=true;
+                break;
+            }
+        }
+        //判断是否找到
+        Assertions.assertTrue(flag_deleteChat);
 
+    }
 
 
 }
